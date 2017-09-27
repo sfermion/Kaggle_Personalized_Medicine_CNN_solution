@@ -31,7 +31,7 @@ training_text_file = "Data/training_text" # Data source for the test data.
 embedding_dim = 200 # Dimensionality of character embedding (default: 128)
 filter_sizes = "2,3,4" # Comma-separated filter sizes (default: '3,4,5')
 num_filters = 256 # Number of filter('positive_data_file's per filter size (default: 128)
-dropout_keep_prob = 0.5 # Dropout keep probability (default: 0.5)
+dropout_keep_prob = 0.8 # Dropout keep probability (default: 0.5)
 l2_reg_lambda = 0.0 # L2 regularization lambda (default: 0.0)
 
 
@@ -160,25 +160,6 @@ with tf.Graph().as_default():
             train_step(x_batch, y_batch)
             current_step = tf.train.global_step(sess, global_step)
 
-            if current_step % evaluate_every == 0:
-                dev_batches = data_helpers.batch_iter(list(zip(x_dev, y_dev)), batch_size, 1)
-                total_dev_correct = 0
-                for dev_batch in dev_batches:
-                    x_dev_batch, y_dev_batch = zip(*dev_batch)
-                    num_dev_correct = dev_step(x_dev_batch, y_dev_batch)
-                    total_dev_correct += num_dev_correct
-
-                dev_accuracy = float(total_dev_correct) / len(y_dev)
-                print('Accuracy on dev set: {}'.format(dev_accuracy))
-
-
-
-                """ Save the model if it is the best based on accuracy of the dev set"""
-                if dev_accuracy >= best_accuracy:
-                    best_accuracy, best_at_step = dev_accuracy, current_step
-                    path = saver.save(sess, checkpoint_prefix, global_step=current_step)
-                    print('Saved model {} at step {}'.format(path, best_at_step))
-                    print('Best accuracy {} at step {}'.format(best_accuracy, best_at_step))
 
         """ Predict x_test (batch by batch)"""
         test_batches = data_helpers.batch_iter(list(zip(x_dev, y_dev)), batch_size, 1)
@@ -189,5 +170,5 @@ with tf.Graph().as_default():
             total_test_correct += num_test_correct
 
         test_accuracy = float(total_test_correct) / len(y_dev)
-        print('Accuracy on test set is {} based on the best model {}'.format(test_accuracy, path))
+        print('Accuracy on test set is {} based on the best model {}'.format(test_accuracy, saver))
         print('The training is complete')
