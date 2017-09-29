@@ -46,9 +46,9 @@ def clean_str(s):
     s = re.sub(r" '\S+", "", s)
     s = re.sub(r"   "," ",s)
     s = re.sub(r"  "," ",s)
-    # words = remove_stopword(s)
+    words = remove_stopword(s)
     # s = " ".join(set(words))
-    # s = " ".join(words)
+    s = " ".join(words)
     return s.strip()
 
 def load_data_and_labels(variants_file,text_file):
@@ -57,12 +57,12 @@ def load_data_and_labels(variants_file,text_file):
     txt = pd.read_csv(text_file, sep="\|\|", engine='python', header=None, skiprows=1, names=["ID","Text"])
     x_text = list(txt['Text'])
     print ("Cleaning data ...\n")
-    x_text = [clean_str(sent) for sent in x_text]
-    # Max_textp the actual classes to one hot labels
-    # pool = Pool(processes=cpus)
-    # x_text = pool.map(clean_str, x_text)
-    # pool.close()
-    # pool.join()  
+    # x_text = [clean_str(sent) for sent in x_text]
+
+    pool = Pool(processes=cpus)
+    x_text = pool.map(clean_str, x_text)
+    pool.close()
+    pool.join()  
     # Map the actual classes to one hot labels
     try:
         # class_vec = np.array(list(var['Class']-1))
