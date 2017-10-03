@@ -48,31 +48,22 @@ vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 ts = vocab_processor.fit_transform(x_raw)
 ts = list(ts)
 x = np.array(ts)
+
+# x_features = data_helper.gene_related_features(training_variants_file,training_text_file)
+
+# x_features = x_features.astype(int)
+
+# x = np.concatenate((x,x_features),axis=1)
 y = np.array(y_raw)
-
-# index = np.array(range(len(y)))
-# x = np.column_stack((index,x))
-
 x_, x_test, y_, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
-# x_test_idx = x_test[:,0]
-# x_test = x_test[:,1:]
 
-# x_idx = x_[:,0]
-# x_ = x_[:,1:]
 # Randomly shuffle data
-
 shuffle_indices = np.random.permutation(np.arange(len(y_)))
 x_shuffled = x_[shuffle_indices]
 y_shuffled = y_[shuffle_indices]
 
 x_train, x_dev, y_train, y_dev = train_test_split(x_shuffled, y_shuffled, test_size=0.1)
-
-# x_train_idx = x_train[:,0]
-# x_train = x_train[:,1:]
-# x_dev_idx = x_dev[:,0]
-# x_dev = x_dev[:,1:]
-
 
 with open('./labels.json', 'w') as outfile:
     json.dump(labels, outfile, indent=4)
@@ -80,18 +71,6 @@ with open('./labels.json', 'w') as outfile:
 print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
-
-
-# np.random.seed(10)
-# shuffle_indices = np.random.permutation(np.arange(len(y)))
-# x_shuffled = x[shuffle_indices]
-# y_shuffled = y[shuffle_indices]
-
-# # Split train/test set
-
-# dev_sample_index = -1 * int(eval_sample_percentage * float(len(y)))
-# x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
-# y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 
 
 # Training
@@ -164,11 +143,7 @@ with tf.Graph().as_default():
         # One training step: train the model with one batch
         def train_step(x_batch, y_batch):
 
-            feed_dict = {
-              cnn.input_x: x_batch,
-              cnn.input_y: y_batch,
-              cnn.dropout_keep_prob: params['dropout_keep_prob']
-            }
+            feed_dict = { cnn.input_x: x_batch, cnn.input_y: y_batch, cnn.dropout_keep_prob: params['dropout_keep_prob']}
             _, step, summaries, loss, accuracy = sess.run([train_op, 
                                                         global_step, 
                                                         train_summary_op, 
@@ -182,15 +157,17 @@ with tf.Graph().as_default():
         # One evaluation step: evaluate the model with one batch
         def dev_step(x_batch, y_batch):
             feed_dict = { cnn.input_x: x_batch, cnn.input_y: y_batch, cnn.dropout_keep_prob: 1.0}
-            step, loss, accuracy, num_correct = sess.run([global_step, 
-                                                        cnn.loss, 
-                                                        cnn.accuracy, 
-                                                        cnn.num_correct],
-                                                        feed_dict)
+            step, summaries, loss, accuracy, num_correct = sess.run([global_step, 
+                                                                    dev_summary_op,
+                                                                    cnn.loss, 
+                                                                    cnn.accuracy, 
+                                                                    cnn.num_correct],
+                                                                    feed_dict)
             time_str = datetime.datetime.now().isoformat()
             print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
             # if writer:
             #     writer.add_summary(summaries, step)
+            dev_summary_writer.add_summary(summaries, step)
 
             return num_correct
 

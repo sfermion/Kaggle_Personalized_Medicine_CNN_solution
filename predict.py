@@ -1,8 +1,9 @@
-import os
+import data_helper
 import json
 import logging
-import data_helper
 import numpy as np
+import os
+import pandas as pd
 import tensorflow as tf
 from tensorflow.contrib import learn
 
@@ -11,7 +12,7 @@ logging.getLogger().setLevel(logging.INFO)
 # def predict_unseen_data():
 """Step 0: load trained model and parameters"""
 params = json.loads(open('./parameters.json').read())
-checkpoint_dir = "./runs/1506663323/"
+checkpoint_dir = "./runs/1506747374/"
 if not checkpoint_dir.endswith('/'):
 	checkpoint_dir += '/'
 checkpoint_file = tf.train.latest_checkpoint(checkpoint_dir + 'checkpoints')
@@ -60,7 +61,7 @@ with graph.as_default():
 
 			all_probabilities = all_probabilities.append(pd.DataFrame(batch_probabilities))
 		all_probabilities.columns = ['class'+str(c+1) for c in range(9)]
-		all_probabilities.insert(0,'ID',[i for i in range(all_probabilities.shape[0])])
+		all_probabilities.insert(0,'ID',[i+1 for i in range(all_probabilities.shape[0])])
 		all_probabilities.to_csv('submission.csv', index=False)
 if y_test is not None:
 	y_test = np.argmax(y_test, axis=1)
