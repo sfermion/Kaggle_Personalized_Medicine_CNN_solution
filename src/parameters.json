@@ -1,0 +1,15 @@
+{
+    "num_epochs": 100,
+    "batch_size": 60,
+    "num_filters": 32,
+    "filter_sizes": "2,3,4,5,6,7,8",
+    "embedding_dim": 60,
+    "l2_reg_lambda": 0.3,
+    "evaluate_every": 200,
+    "dropout_keep_prob": 0.4,
+    "eval_sample_percentage": 0.3,
+    "checkpoint_every": 50,
+    "num_checkpoints": 5,
+    "allow_soft_placement": true,
+    "log_device_placement":false
+}

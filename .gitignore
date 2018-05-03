@@ -1,0 +1,11 @@
+submission.csv
+*.pem
+runs/
+pip-selfcheck.json
+*.pyc
+Data/
+bin/
+include/
+lib/
+.Python
+.idea/
